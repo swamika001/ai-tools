@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 TRAIN = 'train'
 VALID = 'valid'
 
-def getCategories(SRC_PATH):
+def get_categories(SRC_PATH):
     """
     Get all category paths in the SRC_PATH folder
        
@@ -51,7 +51,7 @@ def copy_and_split(SRC_PATH, DST_TRAIN, DST_VALID, ratio=0.20, seed=None):
         seed: Split seed
     """
     
-    cats = getCategories(SRC_PATH)
+    cats = get_categories(SRC_PATH)
     
     for cat in cats:
         files = list(cat.iterdir())
