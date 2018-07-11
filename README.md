@@ -20,3 +20,18 @@ Dataset_name/<br/>
 
 #### Command line:
 python split.py -s *dataset_folder* -d *destination_folder* -r *split_ratio* -e *seed (optional)*
+
+
+## BBox
+
+A simple tool for labeling object bounding boxes in images, implemented with Python Tkinter.
+
+Based on the followinf github repo by Shi Qiu:
+https://github.com/puzzledqs/BBox-Label-Tool
+
+Requires Tkinter for Python 3:
+sudo apt-get install python3-tk
+
+#### Command line:
+python bbox.py
+
