@@ -9,13 +9,13 @@ Images shall be organized using the one-category-per-folder structure:
 
 Dataset_name/<br/>
 |---Class_1/<br/>
-|&nbsp;&nbsp;&nbsp;|---image1.png<br/>
-|   |---image2.png<br/>
-|   |---...<br/>
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|---image1.png<br/>
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|---image2.png<br/>
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|---...<br/>
 |---Class_2/<br/>
-|   |---image10.png<br/>
-|   |---image11.png<br/>
-|   |---...<br/>
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|---image10.png<br/>
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|---image11.png<br/>
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|---...<br/>
 |---...<br/>
 
 #### Command line:
