@@ -1,7 +1,9 @@
 # ai-tools
 Tools for Artificial Intelligence
 
-## Split
+<br/>
+<br/>
+## Train-Valid Splitter
 
 Split an image dataset into a training set and a validation set.
 <br/>
@@ -21,8 +23,10 @@ Dataset_name/<br/>
 #### Command line:
 python split.py -s *dataset_folder* -d *destination_folder* -r *split_ratio* -e *seed (optional)*
 
+<br/>
+<br/>
 
-## BBox
+## Bounding Box Labeler
 
 A simple tool for multi-object and multi-class bounding boxes labeling in images, implemented with Python Tkinter.
 
@@ -37,8 +41,10 @@ Classes are specified in the class.txt file. It's just a list.
 #### Command line:
 python bbox.py
 
+<br/>
+<br/>
 
-## BBox
+## Duplicated Image Finder
 
 A tool to find duplicated images in a dataset. Uses sha1 hash on the image data.
 
