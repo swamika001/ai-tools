@@ -37,3 +37,11 @@ Classes are specified in the class.txt file. It's just a list.
 #### Command line:
 python bbox.py
 
+
+## BBox
+
+A tool to find duplicated images in a dataset. Uses sha1 hash on the image data.
+
+#### Command line:
+python duplicate_find.py -f *images_folder*
+

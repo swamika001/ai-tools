@@ -25,7 +25,7 @@ from pathlib import Path
 COLORS = ['red', 'blue', 'yellow', 'pink', 'cyan', 'green', 'black']
 
 # Supported image formats
-IMAGE_FORMATS = ['.jpeg', '.jpg', '.png']
+IMAGE_FORMATS = ['.jpeg', '.jpg', '.png', '.JPEG', '.PNG', '.JPG']
 
 # Maximum size for width or height, because scrolling and zooming the image is not supported yet
 MAX_SIZE = 512
