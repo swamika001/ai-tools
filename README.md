@@ -1,7 +1,8 @@
 # ai-tools
 Tools for Artificial Intelligence
 
-
+<br/>
+<br/>
 ## Train-Valid Splitter
 
 Split an image dataset into a training set and a validation set.
@@ -22,7 +23,8 @@ Dataset_name/<br/>
 #### Command line:
 python split.py -s *dataset_folder* -d *destination_folder* -r *split_ratio* -e *seed (optional)*
 
-
+<br/>
+<br/>
 
 ## Bounding Box Labeler
 
@@ -39,7 +41,8 @@ Classes are specified in the class.txt file. It's just a list.
 #### Command line:
 python bbox.py
 
-
+<br/>
+<br/>
 
 ## Duplicated Image Finder
 
