@@ -86,7 +86,7 @@ class BboxTool():
         self.imagename = ''
         self.labelfilename = ''
         self.tkimg = None
-        self.ratio = None
+        self.ratio = 1.0
         self.selected_label = ''
         self.multi_label = True
 
@@ -270,14 +270,16 @@ class BboxTool():
                         bbox_cnt = int(line.strip())
                         continue
                     tmp = line.split()
+                    print(tmp)
                     self.bboxList.append(tuple(tmp))
-                    tmpId = self.mainPanel.create_rectangle(int(tmp[0]), int(tmp[1]), \
-                                                            int(tmp[2]), int(tmp[3]), \
-                                                            width = 2, \
-                                                            outline = COLORS[(len(self.bboxList)-1) % len(COLORS)])
+                    t0=int(int(tmp[0])/self.ratio)
+                    t1=int(int(tmp[1])/self.ratio)
+                    t2=int(int(tmp[2])/self.ratio)
+                    t3=int(int(tmp[3])/self.ratio)
+                    tmpId = self.mainPanel.create_rectangle(t0, t1, t2, t3, width=2,
+                        outline=COLORS[(len(self.bboxList)-1) % len(COLORS)])
                     self.bboxIdList.append(tmpId)
-                    self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' %(tmp[4],int(tmp[0]), int(tmp[1]), \
-                    												  int(tmp[2]), int(tmp[3])))
+                    self.listbox.insert(END, f'{tmp[4]} : ({t0}, {t1}) -> ({t2}, {t3})')
                     self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
 
 
@@ -288,13 +290,14 @@ class BboxTool():
 
         with open(self.labelfilename, 'w') as f:
             f.write('%d\n' %len(self.bboxList))
+            print(self.bboxList)
             for bbox in self.bboxList:
-                if self.ratio != None:
-                    bbox = (int(bbox[0]*self.ratio),
-                     int(bbox[1]*self.ratio),
-                     int(bbox[2]*self.ratio),
-                     int(bbox[3]*self.ratio))
-                f.write(' '.join(map(str, bbox)) + '\n')
+                bbox = (int(bbox[0]*self.ratio),
+                    int(bbox[1]*self.ratio),
+                    int(bbox[2]*self.ratio),
+                    int(bbox[3]*self.ratio),
+                    bbox[4])
+            f.write(' '.join(map(str, bbox)) + '\n')
         print(f'Image {self.labelfilename} saved')
 
 
