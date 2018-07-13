@@ -30,6 +30,9 @@ IMAGE_FORMATS = ['.jpeg', '.jpg', '.png']
 # Maximum size for width or height, because scrolling and zooming the image is not supported yet
 MAX_SIZE = 768
 
+# Name of the text file containing the labels
+LABEL_FILE = 'class.txt'
+
 class BboxTool():
     """
     Bounding Box Labeling Class
@@ -54,12 +57,17 @@ class BboxTool():
 
         # Title label for directory
         title_label = Label(self.frame, text="Images Directory:")
-        title_label.grid(row=0, column=0, sticky=E)
+        title_label.grid(row=0, column=0, sticky=W)
         
         # Label for directory
         self.dir = StringVar()
         directory = Label(self.frame, textvariable=self.dir)
         directory.grid(row=0, column=1, sticky=W)
+        
+        # Label for current image
+        self.curimg = StringVar()
+        curim = Label(self.frame, textvariable=self.curimg)
+        curim.grid(row=1, column=0, sticky=W)
         
         # Load Button
         self.ldBtn = Button(self.frame, text="Load", command=self.load_directory)
@@ -79,12 +87,40 @@ class BboxTool():
         self.labelfilename = ''
         self.tkimg = None
         self.ratio = None
-        self.currentLabelclass = ''
-        self.cla_can_temp = []
-        self.classcandidate_filename = 'class.txt'
+        self.selected_label = ''
+        self.multi_label = True
 
-    def callback(self, eventObject):
-        self.currentLabelclass = self.classcandidate.get()
+    def set_label(self, eventObject):
+        """
+        """
+        self.selected_label = self.cbox_label.get()
+
+
+    def setup_combobox_widget(self):
+        """
+        Setup the combobox for label selection.
+
+        The combobox is shown only if the 'class.txt' file exist
+
+        """
+        temp = []
+        try:
+            with Path(LABEL_FILE).open() as f:
+                for line in f.readlines():
+                    temp.append(line.strip('\n'))
+        except:
+            self.multi_label = False
+            return
+
+        lb = Label(self.frame, text = 'Labels:')
+        lb.grid(row=1, column=2, sticky=W)
+        self.cbox_label = ttk.Combobox(self.frame, state='readonly')
+        self.cbox_label.bind("<<ComboboxSelected>>", self.set_label)
+        self.cbox_label.grid(row=2, column=2)
+        
+        self.cbox_label['values'] = temp
+        self.cbox_label.current(0)
+        self.selected_label = self.cbox_label.get()
 
     def __init__(self, master):
         
@@ -112,21 +148,9 @@ class BboxTool():
         #self.parent.bind("s", self.cancelBBox)
         #self.parent.bind("a", self.prevImage) # press 'a' to go backforward
         #self.parent.bind("d", self.nextImage) # press 'd' to go forward
-        self.mainPanel.grid(row = 1, column = 1, rowspan = 4, sticky = W+N)
+        self.mainPanel.grid(row = 3, column = 1, rowspan = 4, sticky = W+N)
 
-        # choose class
-        self.classname = StringVar()
-        self.classcandidate = ttk.Combobox(self.frame, state='readonly', textvariable=self.classname)
-        self.classcandidate.bind("<<ComboboxSelected>>", self.callback)
-        self.classcandidate.grid(row=1,column=2)
-        if os.path.exists(self.classcandidate_filename):
-        	with open(self.classcandidate_filename) as cf:
-        		for line in cf.readlines():
-        			# print line
-        			self.cla_can_temp.append(line.strip('\n'))
-        self.classcandidate['values'] = self.cla_can_temp
-        self.classcandidate.current(0)
-        self.currentLabelclass = self.classcandidate.get() #init
+        self.setup_combobox_widget()
 
         # showing bbox info & delete bbox
         self.lb1 = Label(self.frame, text = 'Bounding boxes:')
@@ -212,6 +236,7 @@ class BboxTool():
 
         imagepath = self.image_list[self.current_img - 1]
         img = Image.open(imagepath)
+        self.curimg.set(imagepath.name)
 
         width, height = img.size
 
@@ -234,7 +259,7 @@ class BboxTool():
 
         # load labels
         self.clearBBox()
-        self.imagename = os.path.split(imagepath)[-1].split('.')[0]
+        self.imagename = imagepath.stem
         labelname = self.imagename + '.txt'
         self.labelfilename = os.path.join(self.outDir, labelname)
         bbox_cnt = 0
@@ -244,15 +269,12 @@ class BboxTool():
                     if i == 0:
                         bbox_cnt = int(line.strip())
                         continue
-                    # tmp = [int(t.strip()) for t in line.split()]
                     tmp = line.split()
-                    #print tmp
                     self.bboxList.append(tuple(tmp))
                     tmpId = self.mainPanel.create_rectangle(int(tmp[0]), int(tmp[1]), \
                                                             int(tmp[2]), int(tmp[3]), \
                                                             width = 2, \
                                                             outline = COLORS[(len(self.bboxList)-1) % len(COLORS)])
-                    # print tmpId
                     self.bboxIdList.append(tmpId)
                     self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' %(tmp[4],int(tmp[0]), int(tmp[1]), \
                     												  int(tmp[2]), int(tmp[3])))
@@ -281,7 +303,10 @@ class BboxTool():
         else:
             x1, x2 = min(self.STATE['x'], event.x), max(self.STATE['x'], event.x)
             y1, y2 = min(self.STATE['y'], event.y), max(self.STATE['y'], event.y)
-            self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
+            if self.multi_label:
+                self.bboxList.append((x1, y1, x2, y2, self.selected_label))
+            else:
+                self.bboxList.append((x1, y1, x2, y2))
             self.bboxIdList.append(self.bboxId)
             self.bboxId = None
             self.listbox.insert(END, '(%d, %d) -> (%d, %d)' %(x1, y1, x2, y2))
