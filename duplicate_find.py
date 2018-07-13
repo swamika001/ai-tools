@@ -66,6 +66,8 @@ def compute_hash(images):
         A dictionnary {'filename': hash_value}
     """
 
+    print('Computing hashes...')
+
     hashes = defaultdict()
 
     for i in images:
@@ -88,6 +90,7 @@ def parse_arguments():
     
     parser = argparse.ArgumentParser(description='Identical Images Finder')
     parser.add_argument('-f','--folder', help='Folder containing the images', required=True, type=str)
+    parser.add_argument('-c','--clean', action='store_true')
     args = vars(parser.parse_args())
 
     return args
@@ -109,13 +112,24 @@ def main():
 
     # Find identical images
     iden = find_identical_images(l)
-
     print(f'Found {len(iden)} sets of identical images!')
-    for i in iden:
-        print(i)
+    if args['clean'] == False:
+        for i in iden:
+            print(i)
+
+    # Remove duplicated images
+    if args['clean'] == True:
+        for i in iden:
+            remove = list(i)[1:]
+            for r in remove:
+                a = Path(args['folder'])/Path(r)
+                a.unlink()
+                print(f'Removed {a}')
 
     # End
     print('Done!')
+
+    print()
 
 
 if __name__ == "__main__":
