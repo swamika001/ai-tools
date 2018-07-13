@@ -28,7 +28,7 @@ COLORS = ['red', 'blue', 'yellow', 'pink', 'cyan', 'green', 'black']
 IMAGE_FORMATS = ['.jpeg', '.jpg', '.png']
 
 # Maximum size for width or height, because scrolling and zooming the image is not supported yet
-MAX_SIZE = 768
+MAX_SIZE = 512
 
 # Name of the text file containing the labels
 LABEL_FILE = 'class.txt'
@@ -67,7 +67,7 @@ class BboxTool():
         # Label for current image
         self.curimg = StringVar()
         curim = Label(self.frame, textvariable=self.curimg)
-        curim.grid(row=1, column=0, sticky=W)
+        curim.grid(row=1, column=0, columnspan=2, sticky=W)
         
         # Load Button
         self.ldBtn = Button(self.frame, text="Load", command=self.load_directory)
@@ -146,9 +146,9 @@ class BboxTool():
         self.mainPanel.bind("<Motion>", self.mouseMove)
         self.parent.bind("<Escape>", self.cancelBBox)  # press <Espace> to cancel current bbox
         #self.parent.bind("s", self.cancelBBox)
-        #self.parent.bind("a", self.prevImage) # press 'a' to go backforward
-        #self.parent.bind("d", self.nextImage) # press 'd' to go forward
-        self.mainPanel.grid(row = 3, column = 1, rowspan = 4, sticky = W+N)
+        self.parent.bind("<Left>", self.prevImage)
+        self.parent.bind("<Right>", self.nextImage)
+        self.mainPanel.grid(row = 3, column = 0, rowspan = 4, columnspan=2, sticky = W+N)
 
         self.setup_combobox_widget()
 
@@ -243,15 +243,15 @@ class BboxTool():
         # Resize image to fit on screen (zooming and scrolling are not supported yet)
         if width > height:
             if width > MAX_SIZE:
-                self.ratio = width / 512
+                self.ratio = width / MAX_SIZE
                 img.thumbnail((MAX_SIZE,int(height/self.ratio)))
         else:
             if height > MAX_SIZE:
-                self.ratio = height / 512
+                self.ratio = height / MAX_SIZE
                 img.thumbnail((int(width/self.ratio), MAX_SIZE))
 
         self.tkimg = ImageTk.PhotoImage(img)
-        self.mainPanel.config(width=max(self.tkimg.width(), 400), height=max(self.tkimg.height(), 400))
+        self.mainPanel.config(width=max(self.tkimg.width(), MAX_SIZE), height=max(self.tkimg.height(), MAX_SIZE))
         self.mainPanel.create_image(0, 0, image = self.tkimg, anchor=NW)
         
         # Update Progress indicator
@@ -279,6 +279,7 @@ class BboxTool():
                     self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' %(tmp[4],int(tmp[0]), int(tmp[1]), \
                     												  int(tmp[2]), int(tmp[3])))
                     self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
+
 
     def save_bounding_box(self):
         """
