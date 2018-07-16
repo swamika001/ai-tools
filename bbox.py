@@ -137,6 +137,7 @@ class BboxTool():
         self.bboxIdList = []
         self.bboxId = None
         self.bboxList = []
+        self.bboxList_display = []
         self.hl = None
         self.vl = None
 
@@ -243,13 +244,15 @@ class BboxTool():
         # Resize image to fit on screen (zooming and scrolling are not supported yet)
         if width > height:
             if width > MAX_SIZE:
+                print('W')
                 self.ratio = width / MAX_SIZE
                 img.thumbnail((MAX_SIZE,int(height/self.ratio)))
         else:
             if height > MAX_SIZE:
+                print('H')
                 self.ratio = height / MAX_SIZE
                 img.thumbnail((int(width/self.ratio), MAX_SIZE))
-
+        
         self.tkimg = ImageTk.PhotoImage(img)
         self.mainPanel.config(width=max(self.tkimg.width(), MAX_SIZE), height=max(self.tkimg.height(), MAX_SIZE))
         self.mainPanel.create_image(0, 0, image = self.tkimg, anchor=NW)
@@ -270,16 +273,29 @@ class BboxTool():
                         bbox_cnt = int(line.strip())
                         continue
                     tmp = line.split()
-                    print(tmp)
+                    tmp[0] = int(tmp[0])
+                    tmp[1] = int(tmp[1])
+                    tmp[2] = int(tmp[2])
+                    tmp[3] = int(tmp[3])
+                    if tmp[-1] is None:
+                        tmp.append('Loaded')
                     self.bboxList.append(tuple(tmp))
-                    t0=int(int(tmp[0])/self.ratio)
-                    t1=int(int(tmp[1])/self.ratio)
-                    t2=int(int(tmp[2])/self.ratio)
-                    t3=int(int(tmp[3])/self.ratio)
-                    tmpId = self.mainPanel.create_rectangle(t0, t1, t2, t3, width=2,
+                    tmp_disp = []
+                    tmp_disp.append(int(tmp[0]/self.ratio))
+                    tmp_disp.append(int(tmp[1]/self.ratio))
+                    tmp_disp.append(int(tmp[2]/self.ratio))
+                    tmp_disp.append(int(tmp[3]/self.ratio))
+                    self.bboxList_display.append(tuple(tmp_disp))
+   
+                    tmpId = self.mainPanel.create_rectangle(
+                        tmp_disp[0],
+                        tmp_disp[1],
+                        tmp_disp[2],
+                        tmp_disp[3],
+                        width=2,
                         outline=COLORS[(len(self.bboxList)-1) % len(COLORS)])
                     self.bboxIdList.append(tmpId)
-                    self.listbox.insert(END, f'{tmp[4]} : ({t0}, {t1}) -> ({t2}, {t3})')
+                    self.listbox.insert(END, f'{tmp[4]} : ({tmp[0]}, {tmp[1]}) -> ({tmp[2]}, {tmp[3]})')
                     self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
 
 
@@ -292,12 +308,14 @@ class BboxTool():
             f.write('%d\n' %len(self.bboxList))
             print(self.bboxList)
             for bbox in self.bboxList:
-                bbox = (int(bbox[0]*self.ratio),
-                    int(bbox[1]*self.ratio),
-                    int(bbox[2]*self.ratio),
-                    int(bbox[3]*self.ratio),
-                    bbox[4])
-            f.write(' '.join(map(str, bbox)) + '\n')
+                if bbox[-1] is None:
+                    bbox = (int(int(bbox[0])*self.ratio),
+                        int(int(bbox[1])*self.ratio),
+                        int(int(bbox[2])*self.ratio),
+                        int(int(bbox[3])*self.ratio),
+                        bbox[4])
+                               
+                f.write(' '.join(map(str, bbox)) + '\n')
         print(f'Image {self.labelfilename} saved')
 
 
@@ -308,9 +326,9 @@ class BboxTool():
             x1, x2 = min(self.STATE['x'], event.x), max(self.STATE['x'], event.x)
             y1, y2 = min(self.STATE['y'], event.y), max(self.STATE['y'], event.y)
             if self.multi_label:
-                self.bboxList.append((x1, y1, x2, y2, self.selected_label))
+                self.bboxList.append((x1, y1, x2, y2, self.selected_label, None))
             else:
-                self.bboxList.append((x1, y1, x2, y2))
+                self.bboxList.append((x1, y1, x2, y2, None))
             self.bboxIdList.append(self.bboxId)
             self.bboxId = None
             self.listbox.insert(END, '(%d, %d) -> (%d, %d)' %(x1, y1, x2, y2))
@@ -362,12 +380,14 @@ class BboxTool():
         self.save_bounding_box()
         if self.current_img > 1:
             self.current_img -= 1
+            self.ratio = 1.0
             self.loadImage()
 
     def nextImage(self, event = None):
         self.save_bounding_box()
         if self.current_img < len(self.image_list):
             self.current_img += 1
+            self.ratio = 1.0
             self.loadImage()
 
     def gotoImage(self):
